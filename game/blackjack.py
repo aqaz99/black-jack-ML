@@ -17,4 +17,5 @@ class Dealer :
 
 
 seth = Dealer()
-seth.shuffle_deck()
+print(seth.deck)
+# print(seth.deck.print_deck())

@@ -27,21 +27,21 @@ class PlayingCard:
 		self.suit = suit
 		self.value = value
 		
-		def __str__(self):
-			return f"{self.name} of {self.suit}"
+	def __str__(self):
+		return f"{self.name} of {self.suit.name[0]}{self.suit.name.lower()[1:]}"
 	
 
 
 class Deck:
 	def __init__(self):
 		self.cards: list[PlayingCard] = []
+		self.reset_deck()
 
 	def shuffle(self):
 		random.shuffle(self.cards)
 
 	def reset_deck(self):
 		self.cards.clear()
-
 		for suit_val in Suit:
 			for i in range(1, 14):
 				if i == 1:  # Ace
@@ -50,6 +50,11 @@ class Deck:
 					self.cards.append(PlayingCard(number_card_names[i], (i, i), suit_val))
 				else:  # Face
 					self.cards.append(PlayingCard(face_card_names[i-11], (10, 10), suit_val))
-					
+		self.shuffle()
+
+	def print_deck(self): # debug
 		for card in self.cards:
 			print(card)
+	
+	def __str__(self):
+		return f"The deck contains {len(self.cards)}/52 cards"
