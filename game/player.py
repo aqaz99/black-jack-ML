@@ -8,8 +8,11 @@ class Player:
 		self.hand: list[PlayingCard] = []
 	
 	def print_hand(self):
-		hand = f"{self.name}'s hand contains: "
+		hand = f"{self.name}'s hand contains:"
 		for card in self.hand:
-			hand += card.__str__()
-
+			if hand[-1] == ":":
+				hand += f" "
+			else:
+				hand += f", "
+			hand += f"{card.__str__()}"
 		print(hand)
