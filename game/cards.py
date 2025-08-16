@@ -52,6 +52,9 @@ class Deck:
 					self.cards.append(PlayingCard(face_card_names[i-11], (10, 10), suit_val))
 		self.shuffle()
 
+	def remove_card(self):
+		return self.cards.pop()
+
 	def print_deck(self): # debug
 		for card in self.cards:
 			print(card)
