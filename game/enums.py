@@ -9,5 +9,5 @@ class Suit(Enum):
 class Actions(Enum):
 	Hit = 1
 	Stand = 2
-	Split = 3
-	Double = 4
+	Double = 3
+	Split = 4

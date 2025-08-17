@@ -1,4 +1,5 @@
 from cards import PlayingCard
+from enums import Actions
 
 
 class Player:
@@ -29,4 +30,31 @@ class Player:
 			else:
 				print(f"  ➝ Total: ({value[0]}, {value[1]})")
 		else:
-			print("  ➝ Total:",value[0])
+			if value[0] == value[1]:
+				print("  ➝ Total:", value[0])
+			else:
+				print(f"  ➝ Total: ({value[0]}, {value[1]})")
+
+		
+	def print_possible_actions(self):
+		available_actions = [
+			Actions.Hit,
+			Actions.Stand,
+			Actions.Double
+		]
+
+		if self.hand[0].value == self.hand[1].value: # Check split
+			available_actions.append(Actions.Split)
+
+		for action in available_actions:
+			print(f"{action.value}) {action.name}")
+
+		while True:
+			try:
+				choice = int(input("What would you like to do: "))
+				if choice > len(available_actions):
+					continue
+				action = Actions(choice) 
+				break
+			except ValueError:
+				pass

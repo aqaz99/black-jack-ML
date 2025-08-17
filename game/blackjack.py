@@ -40,16 +40,10 @@ class Dealer(Player):
 			player.print_hand()
 
 	def playing_period(self):
-		for action in Actions:
-			print(f"{action.value}) {action.name}")
+		for player in self.players:
+			player.print_possible_actions()
 			
-		while True:
-			try:
-				choice = int(input("What would you like to do: "))
-				action = Actions(choice) 
-				break
-			except ValueError:
-				print("Invalid. Please choose an option from 1-4.")
+
 
 	def cleanup_period(self):
 		pass
