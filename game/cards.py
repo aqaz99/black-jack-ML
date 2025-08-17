@@ -1,5 +1,6 @@
-from enum import Enum
 import random
+
+from enums import Suit
 
 number_card_names = {
 	1: "Ace",
@@ -15,20 +16,16 @@ number_card_names = {
 }
 face_card_names = ["Jack", "Queen", "King"]
 
-class Suit(Enum):
-	CLUBS = 1
-	DIAMONDS = 2
-	HEARTS = 3
-	SPADES = 4
 
 class PlayingCard:
 	def __init__(self, name, value: tuple, suit: Suit):
 		self.name = name
 		self.suit = suit
 		self.value = value
+		self.visible = True
 		
 	def __str__(self):
-		return f"{self.name} of {self.suit.name[0]}{self.suit.name.lower()[1:]}"
+		return f"{self.name} of {self.suit.name}"
 	
 
 

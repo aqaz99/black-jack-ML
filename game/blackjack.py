@@ -1,5 +1,8 @@
 from cards import Deck, PlayingCard
 from player import Player
+from enums import Actions
+
+
 
 # Dealer / GameManager 
 # Runs game loop, deals cards, etc
@@ -10,25 +13,50 @@ class Dealer(Player):
 		self.hand: list[PlayingCard] = []
 		self.players = players
 
-	def deal_card(self, recieving_player: Player):
-		recieving_player.hand.append(self.deck.remove_card())
+	def deal_card(self, recieving_player: Player, visible = True):
+		card = self.deck.remove_card()
+		card.visible = visible
+		recieving_player.hand.append(card)
 	
 	def shuffle_deck(self):
 		self.deck.reset_deck()
 	
+	def betting_period(self):
+		pass
+
+	def playing_period(self):
+		# Don't need to refresh deck everytime, just for now
+		self.shuffle_deck()
+		dealer_card_visible = True
+		while len(self.hand) < 2:
+			for player in self.players:
+				self.deal_card(player)
+				player.print_hand()
+			self.deal_card(self, dealer_card_visible)
+			dealer_card_visible = False
+
+			self.print_hand()
+		
+		print("")
+		for action in Actions:
+			print(f"{action.value}) {action.name}")
+			
+		while True:
+			try:
+				choice = int(input("What would you like to do: "))
+				action = Actions(choice) 
+				break
+			except ValueError:
+				print("Invalid. Please choose an option from 1-4.")
+
+	def cleanup_period(self):
+		pass
 	
 	def play_round(self):
-		# Don't need to refresh deck everytime, just for now
-		while True:
-			self.shuffle_deck()
-			while len(self.hand) < 2:
-				for player in self.players:
-					self.deal_card(player)
-					player.print_hand()
-				self.deal_card(self)
-			print(self.print_hand())
-			
-			action = input("What would you like to do?")
+		print("-"*50)
+		print("-"*19, "New Round", "-"*20)
+		print("-"*50)
+		self.playing_period()
 
 
 
@@ -36,10 +64,6 @@ james = Player("James", 500)
 seth = Dealer("Seth", players=[james])
 
 seth.play_round()
-# print(seth.deck)
-# seth.deal_card(james)
-# james.print_hand()
-# print(seth.deck)
 
 
 
