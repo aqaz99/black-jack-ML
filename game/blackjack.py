@@ -24,20 +24,22 @@ class Dealer(Player):
 	def betting_period(self):
 		pass
 
-	def playing_period(self):
+	def dealing_period(self):
 		# Don't need to refresh deck everytime, just for now
 		self.shuffle_deck()
 		dealer_card_visible = True
 		while len(self.hand) < 2:
 			for player in self.players:
 				self.deal_card(player)
-				player.print_hand()
 			self.deal_card(self, dealer_card_visible)
 			dealer_card_visible = False
-
-			self.print_hand()
 		
+		self.print_hand(True)
 		print("")
+		for player in self.players:
+			player.print_hand()
+
+	def playing_period(self):
 		for action in Actions:
 			print(f"{action.value}) {action.name}")
 			
@@ -56,7 +58,10 @@ class Dealer(Player):
 		print("-"*50)
 		print("-"*19, "New Round", "-"*20)
 		print("-"*50)
+		self.dealing_period()
+		print("-"*50)
 		self.playing_period()
+
 
 
 

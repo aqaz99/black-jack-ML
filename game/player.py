@@ -7,26 +7,26 @@ class Player:
 		self.cash = starting_capital
 		self.hand: list[PlayingCard] = []
 	
-	def print_hand(self):
+	def print_hand(self, dealer = False):
 		value = [0, 0]
-		hand = f"{self.name}'s hand contains:"
+		hand = ""
+		if dealer:
+			hand = f"Dealer ({self.name}):\n  "
+		else:
+			hand = f"Player ({self.name}):\n  "
 		for card in self.hand:
 			if card.visible:
-				if hand[-1] == ":":
-					hand += f" "
-				else:
-					hand += f", "
-				hand += f"{card.__str__()}"
+				hand += f"{card.__str__()}\n  "
 				value[0] += card.value[0]
 				value[1] += card.value[1]
 			else:
-				hand += ", (Hidden Card)"
+				hand += "(Hidden Card)\n  "
 
-
+		print(hand)
 		if any(not card.visible for card in self.hand):
 			if value[0] == value[1]:
-				print(f"{hand} - ({value[0]})")
+				print("  ➝ Total:", value[0])
 			else:
-				print(f"{hand} - ({value[0]}, {value[1]})")
+				print(f"  ➝ Total: ({value[0]}, {value[1]})")
 		else:
-			print(f"{hand} - ({value[0]})")
+			print("  ➝ Total:",value[0])
