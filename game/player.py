@@ -7,6 +7,7 @@ class Player:
 		self.name = name
 		self.cash = starting_capital
 		self.hand: list[PlayingCard] = []
+		self.busted = False
 	
 	def get_hand_value(self, get_max_value = False):
 		"""Return the value of the hand. 

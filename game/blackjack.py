@@ -86,27 +86,29 @@ class Dealer(Player):
 
 
 
-	def playing_period(self) -> bool:
+	def playing_period(self):
 		"""
 		Return true if the player is in / chose stand
 		Return false if the player busted
 		"""
 		for player in self.players:
-			action = player.get_possible_actions()
-			if action == Actions.Hit.value:
-				self.deal_card(player)
-			elif action == Actions.Stand.value:
-				return True
-			else:
-				print(action)
-			
-			self.print_hand(True)
-			player.print_hand()
-			if player.get_hand_value() > 21:
-				print("Bust!")
-				return False
-		self.playing_period()
+			if not player.busted:
+				action = player.get_possible_actions()
+				if action == Actions.Hit.value:
+					self.deal_card(player)
+					self.print_hand(True)
+					player.print_hand()
+					if player.get_hand_value() > 21:
+						print("Bust!")
+						player.busted = True
+						return 
+					self.playing_period()
 		
+				elif action == Actions.Stand.value:
+					return 
+				else:
+					print(action)
+
 
 
 	def cleanup_period(self):
@@ -118,13 +120,17 @@ class Dealer(Player):
 		print("-"*50)
 		if not self.dealing_period(): # All Players won
 			print("-"*50)
-			if self.playing_period():
-				print("-------- The Dealer flips his hidden card --------")
-				print("-"*50)
-				for card in self.hand:
-					card.visible = True
-				self.print_hand(True)
-				self.final_dealing_period_for_dealer()
+			self.playing_period()
+			if all(player.busted for player in self.players):
+				print("Dealer wins")
+				return
+			print("-------- The Dealer flips his hidden card --------")
+			print("-"*50)
+			for card in self.hand:
+				card.visible = True
+			self.print_hand(True)
+			self.final_dealing_period_for_dealer()
+
 
 
 
