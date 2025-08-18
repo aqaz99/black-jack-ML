@@ -30,6 +30,10 @@ class Player:
 		# If the "high" value busts, downgrade it to low
 		if total_high > 21:
 			total_high = total_low
+		
+		# If player has 21, return it
+		if max(total_low, total_high) == 21:
+			return 21
 
 		# If equal, just return one int
 		if total_low == total_high:
@@ -105,5 +109,5 @@ class Player:
 		if self.verbose:
 			print("-"*50)	
 		
-		self.action_map[choice.name] += 1
-		return choice
+		self.action_map[action.name] += 1
+		return action

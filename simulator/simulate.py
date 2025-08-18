@@ -2,9 +2,9 @@ from game.blackjack import Dealer
 from game.player import Player
 from simulator.random_player import RandyRanom
 
-
-robbie = RandyRanom("Robbie", 500, False)
-seth = Dealer("Seth", [robbie], False)
+verbose = True
+robbie = RandyRanom("Robbie", 500, verbose)
+seth = Dealer("Seth", [robbie], verbose)
 
 game_tracker = {
 	"hands": {	

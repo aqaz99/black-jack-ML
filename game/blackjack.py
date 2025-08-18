@@ -108,6 +108,14 @@ class Dealer(Player):
 
 				if action == Action.Hit:
 					self.apply_card_action(player)
+					hand_value = player.get_hand_value()
+					if isinstance(hand_value, tuple):
+						has_21 = 21 in hand_value
+					else:
+						has_21 = hand_value == 21
+
+					if has_21:
+						break
 
 				elif action == Action.Double:
 					self.apply_card_action(player)
@@ -129,7 +137,14 @@ class Dealer(Player):
 		self.print_hand(True)
 		player.print_hand()
 
-		if player.get_hand_value() > 21:
+		hand_value = player.get_hand_value()
+		if isinstance(hand_value, tuple):
+			# collect all values in the tuple that are non-busted
+			value = max([v for v in hand_value if v <= 21], default=min(hand_value))
+		else:
+			value = hand_value
+
+		if value > 21:
 			end_output = f"{player.name} Busts"
 			padding_count = 48 - len(end_output)
 			if self.verbose:
@@ -166,4 +181,7 @@ class Dealer(Player):
 			self.final_dealing_period_for_dealer()
 
 
+# james = Player("James", 500)
+# seth = Dealer("Seth", [james])
 
+# seth.play_round()
