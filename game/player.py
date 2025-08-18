@@ -8,35 +8,67 @@ class Player:
 		self.cash = starting_capital
 		self.hand: list[PlayingCard] = []
 	
-	def print_hand(self, dealer = False):
-		value = [0, 0]
-		hand = ""
-		if dealer:
-			hand = f"Dealer ({self.name}):\n  "
+	def get_hand_value(self, get_max_value = False):
+		"""Return the value of the hand. 
+		If an Ace makes 2 possibilities return a tuple, otherwise a single int."""
+		total_low = 0
+		total_high = 0 
+
+		for card in self.hand:
+			total_low += card.value[0]
+			total_high += card.value[1]
+
+		# If the "high" value busts, downgrade it to low
+		if total_high > 21:
+			total_high = total_low
+
+		# If equal, just return one int
+		if total_low == total_high:
+			return total_low
 		else:
-			hand = f"Player ({self.name}):\n  "
+			if get_max_value:
+				return max(total_low, total_high)
+			return (total_low, total_high)
+	
+	def print_hand(self, dealer=False):
+		"""Prints hand and current score representation."""
+		title = "Dealer" if dealer else "Player"
+		print(f"{title} ({self.name}):")
+
 		for card in self.hand:
 			if card.visible:
-				hand += f"{card.__str__()}\n  "
-				value[0] += card.value[0]
-				value[1] += card.value[1]
+				print(f"  {card}")
 			else:
-				hand += "(Hidden Card)\n  "
+				print("  (Hidden Card)")
 
-		print(hand)
+		# If hidden card exists, only reveal partial values
 		if any(not card.visible for card in self.hand):
-			if value[0] == value[1]:
-				print("  ➝ Total:", value[0])
-			else:
-				print(f"  ➝ Total: ({value[0]}, {value[1]})")
+			val = self.get_partial_value()
+			print(f"  ➝ Total: {val}")
 		else:
-			if value[0] == value[1]:
-				print("  ➝ Total:", value[0])
-			else:
-				print(f"  ➝ Total: ({value[0]}, {value[1]})")
+			value = self.get_hand_value()
+			print(f"  ➝ Total: {value}")
 
 		
-	def print_possible_actions(self):
+		print("")
+
+	def get_partial_value(self):
+		"""Return value of only visible cards (used for dealer’s hidden card)."""
+		total_low = 0
+		total_high = 0
+		for card in self.hand:
+			if card.visible:
+				total_low += card.value[0]
+				total_high += card.value[1]
+
+		if total_high > 21:
+			total_high = total_low
+
+		# If identical, just return int
+		return total_low if total_low == total_high else (total_low, total_high)
+
+	def get_possible_actions(self):
+		choice = ""
 		available_actions = [
 			Actions.Hit,
 			Actions.Stand,
@@ -58,3 +90,5 @@ class Player:
 				break
 			except ValueError:
 				pass
+		print("-"*50)	
+		return choice
