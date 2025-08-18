@@ -85,29 +85,40 @@ class Dealer(Player):
 		
 
 
-
 	def playing_period(self):
 		"""
-		Return true if the player is in / chose stand
-		Return false if the player busted
+		Handle each player's turn until they stand or bust.
 		"""
 		for player in self.players:
-			if not player.busted:
+			while not player.busted:
 				action = player.get_possible_actions()
+
 				if action == Actions.Hit.value:
-					self.deal_card(player)
-					self.print_hand(True)
-					player.print_hand()
-					if player.get_hand_value() > 21:
-						print("Bust!")
-						player.busted = True
-						return 
-					self.playing_period()
-		
+					self.apply_card_action(player)
+
+				elif action == Actions.Double.value:
+					self.apply_card_action(player)
+					break  
+
 				elif action == Actions.Stand.value:
-					return 
+					break
+
 				else:
-					print(action)
+					print(f"Unknown action: {action}")
+					break
+
+
+	def apply_card_action(self, player: Player):
+		"""Helper to deal, print, and handle busting logic."""
+		player.took_first_action = True
+		self.deal_card(player)
+		self.print_hand(True)
+		player.print_hand()
+
+		if player.get_hand_value() > 21:
+			print("Bust!")
+			player.busted = True
+
 
 
 

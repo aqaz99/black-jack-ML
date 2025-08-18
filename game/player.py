@@ -8,6 +8,7 @@ class Player:
 		self.cash = starting_capital
 		self.hand: list[PlayingCard] = []
 		self.busted = False
+		self.took_first_action = False
 	
 	def get_hand_value(self, get_max_value = False):
 		"""Return the value of the hand. 
@@ -73,11 +74,15 @@ class Player:
 		available_actions = [
 			Actions.Hit,
 			Actions.Stand,
-			Actions.Double
+			
 		]
+
+		if not self.took_first_action: # Can't double after first deal
+			available_actions.append(Actions.Double)
 
 		if self.hand[0].value == self.hand[1].value: # Check split
 			available_actions.append(Actions.Split)
+
 
 		for action in available_actions:
 			print(f"{action.value}) {action.name}")
