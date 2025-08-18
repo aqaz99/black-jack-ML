@@ -6,7 +6,7 @@ class Suit(Enum):
 	Hearts = 3
 	Spades = 4
 
-class Actions(Enum):
+class Action(Enum):
 	Hit = 1
 	Stand = 2
 	Double = 3

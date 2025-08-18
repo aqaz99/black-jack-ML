@@ -6,6 +6,29 @@ from simulator.random_player import RandyRanom
 robbie = RandyRanom("Robbie", 500, False)
 seth = Dealer("Seth", [robbie], False)
 
+game_tracker = {
+	"hands": {	
+		"Null": 0, 
+		"Win": 0, 
+		"Push": 0, 
+		"Bust": 0, 
+		"DealerWin":0
+	},
+	"actions": {
+		"Hit": 0, 
+		"Stand": 0, 
+		"Double": 0, 
+		"Split":0
+	}
+}
 for i in range(10): 
 	seth.play_round()
-	print(robbie.end_game_state.name)
+	game_tracker["hands"][robbie.end_game_state.name] += 1
+	for key, val in robbie.action_map.items():
+		game_tracker["actions"][key] += val
+
+for key, val in game_tracker["hands"].items():
+	print(key, val)
+
+for key, val in game_tracker["actions"].items():
+	print(key, val)

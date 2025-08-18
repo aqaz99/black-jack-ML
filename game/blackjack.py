@@ -1,6 +1,6 @@
 from game.cards import Deck, PlayingCard
 from game.player import Player
-from game.enums import Actions, EndGameState
+from game.enums import Action, EndGameState
 
 
 
@@ -8,11 +8,9 @@ from game.enums import Actions, EndGameState
 # Runs game loop, deals cards, etc
 class Dealer(Player):
 	def __init__(self, name, players: list[Player], verbose = True):
-		self.name = name
+		super().__init__(name, starting_capital=0, verbose=verbose)
 		self.deck = Deck()
-		self.hand: list[PlayingCard] = []
 		self.players = players
-		self.verbose = verbose
 
 	def deal_card(self, recieving_player: Player, visible = True):
 		card = self.deck.remove_card()
@@ -48,6 +46,9 @@ class Dealer(Player):
 	
 	def set_player_endgame_state(self, state: EndGameState):
 		for player in self.players:
+			if player.end_game_state == EndGameState.Null:
+				player.end_game_state = state
+
 			if not player.end_game_state == EndGameState.Bust:
 				player.end_game_state = state
 	
@@ -105,14 +106,14 @@ class Dealer(Player):
 			while not player.end_game_state == EndGameState.Bust:
 				action = player.get_possible_actions()
 
-				if action == Actions.Hit.value:
+				if action == Action.Hit:
 					self.apply_card_action(player)
 
-				elif action == Actions.Double.value:
+				elif action == Action.Double:
 					self.apply_card_action(player)
 					break  
 
-				elif action == Actions.Stand.value:
+				elif action == Action.Stand:
 					break
 
 				else:
@@ -141,8 +142,10 @@ class Dealer(Player):
 	
 	def play_round(self):
 		# Reset players end game state
+		self.hand.clear()
 		for player in self.players:
 			player.end_game_state = EndGameState.Null
+			player.hand.clear()
 		if self.verbose:
 			print("-"*50)
 			print("-"*19, "New Round", "-"*20)

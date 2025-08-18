@@ -1,5 +1,5 @@
 from game.cards import PlayingCard
-from game.enums import Actions, EndGameState
+from game.enums import Action, EndGameState
 
 
 class Player:
@@ -10,6 +10,12 @@ class Player:
 		self.took_first_action = False
 		self.verbose = verbose
 		self.end_game_state = EndGameState.Null
+		self.action_map = {
+			"Hit": 0, 
+			"Stand": 0, 
+			"Double": 0, 
+			"Split":0
+		}
 	
 	def get_hand_value(self, get_max_value = False):
 		"""Return the value of the hand. 
@@ -71,18 +77,17 @@ class Player:
 		# If identical, just return int
 		return total_low if total_low == total_high else (total_low, total_high)
 
-	def get_possible_actions(self):
-		choice = ""
+	def get_possible_actions(self) -> Action:
+		choice = Action.Hit
 		available_actions = [
-			Actions.Hit,
-			Actions.Stand,
-			
+			Action.Hit,
+			Action.Stand,
 		]
 		if not self.took_first_action: # Can't double after first deal
-			available_actions.append(Actions.Double)
+			available_actions.append(Action.Double)
 
-		if self.hand[0].value == self.hand[1].value: # Check split
-			available_actions.append(Actions.Split)
+		# if self.hand[0].value == self.hand[1].value: # Check split
+		# 	available_actions.append(Action.Split)
 
 		if self.verbose:
 			for action in available_actions:
@@ -93,10 +98,12 @@ class Player:
 				choice = int(input("What would you like to do: "))
 				if choice > len(available_actions):
 					continue
-				action = Actions(choice) 
+				action = Action(choice) 
 				break
 			except ValueError:
 				pass
 		if self.verbose:
 			print("-"*50)	
+		
+		self.action_map[choice.name] += 1
 		return choice
