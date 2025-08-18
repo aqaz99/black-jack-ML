@@ -161,6 +161,13 @@ class Dealer(Player):
 		for player in self.players:
 			player.end_game_state = EndGameState.Null
 			player.hand.clear()
+			player.took_first_action = False
+			player.action_map = {
+				"Hit": 0, 
+				"Stand": 0, 
+				"Double": 0, 
+				"Split":0
+			}
 		if self.verbose:
 			print("-"*50)
 			print("-"*19, "New Round", "-"*20)

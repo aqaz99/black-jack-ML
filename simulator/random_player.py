@@ -16,6 +16,7 @@ class RandyRanom(Player):
 			Action.Hit,
 			Action.Stand,
 		]
+
 		if not self.took_first_action: # Can't double after first deal
 			available_actions.append(Action.Double)
 

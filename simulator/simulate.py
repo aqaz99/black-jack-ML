@@ -2,8 +2,9 @@ from game.blackjack import Dealer
 from game.player import Player
 from simulator.random_player import RandyRanom
 
-verbose = True
-robbie = RandyRanom("Robbie", 500, verbose)
+verbose = False
+game_count = 100000
+robbie = RandyRanom("Robbie", 1000, verbose)
 seth = Dealer("Seth", [robbie], verbose)
 
 game_tracker = {
@@ -21,14 +22,41 @@ game_tracker = {
 		"Split":0
 	}
 }
-for i in range(10): 
+for i in range(game_count): 
 	seth.play_round()
 	game_tracker["hands"][robbie.end_game_state.name] += 1
 	for key, val in robbie.action_map.items():
 		game_tracker["actions"][key] += val
 
-for key, val in game_tracker["hands"].items():
-	print(key, val)
 
-for key, val in game_tracker["actions"].items():
-	print(key, val)
+hand_items = [(k, v) for k, v in game_tracker["hands"].items() if k != "Null"]
+action_items = list(game_tracker["actions"].items())
+
+
+action_total = sum(val for _, val in action_items)
+
+max_len = max(len(hand_items), len(action_items))
+hand_items += [("", "")] * (max_len - len(hand_items))
+action_items += [("", "")] * (max_len - len(action_items))
+
+end_output = f"Total Games: {game_count}"
+padding_count = 30 - len(end_output)
+print("-" * 31)
+print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
+print("-" * 31)
+
+for (hand_key, hand_val), (action_key, action_val) in zip(hand_items, action_items):
+    if hand_key:
+        hand_perc = f"{100*hand_val/game_count:.1f}%" if game_count else "0%"
+        hand_print = f"{hand_key}: {hand_val} ({hand_perc})"
+    else:
+        hand_print = ""
+    if action_key:
+        action_perc = f"{100*action_val/action_total:.1f}%" if action_total else "0%"
+        action_print = f"{action_key}: {action_val} ({action_perc})"
+    else:
+        action_print = ""
+    print(f"| {hand_print:<16} | {action_print:<14} |")
+print("-" * 31)
+
+
