@@ -1,6 +1,6 @@
-from cards import Deck, PlayingCard
-from player import Player
-from enums import Actions
+from game.cards import Deck, PlayingCard
+from game.player import Player
+from game.enums import Actions
 
 
 
@@ -120,8 +120,6 @@ class Dealer(Player):
 			player.busted = True
 
 
-
-
 	def cleanup_period(self):
 		pass
 	
@@ -141,15 +139,6 @@ class Dealer(Player):
 				card.visible = True
 			self.print_hand(True)
 			self.final_dealing_period_for_dealer()
-
-
-
-
-
-james = Player("James", 500)
-seth = Dealer("Seth", players=[james])
-
-seth.play_round()
 
 
 

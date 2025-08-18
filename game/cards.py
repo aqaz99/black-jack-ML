@@ -1,6 +1,6 @@
 import random
 
-from enums import Suit
+from game.enums import Suit
 
 number_card_names = {
 	1: "Ace",

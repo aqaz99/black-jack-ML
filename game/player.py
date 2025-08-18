@@ -1,5 +1,5 @@
-from cards import PlayingCard
-from enums import Actions
+from game.cards import PlayingCard
+from game.enums import Actions
 
 
 class Player:
