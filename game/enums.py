@@ -11,3 +11,10 @@ class Actions(Enum):
 	Stand = 2
 	Double = 3
 	Split = 4
+
+class EndGameState(Enum):
+	Null = 0
+	Win = 1
+	Push = 2
+	Bust = 3
+	DealerWin = 4

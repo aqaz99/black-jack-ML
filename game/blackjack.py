@@ -1,17 +1,18 @@
 from game.cards import Deck, PlayingCard
 from game.player import Player
-from game.enums import Actions
+from game.enums import Actions, EndGameState
 
 
 
 # Dealer / GameManager 
 # Runs game loop, deals cards, etc
 class Dealer(Player):
-	def __init__(self, name, players: list[Player]):
+	def __init__(self, name, players: list[Player], verbose = True):
 		self.name = name
 		self.deck = Deck()
 		self.hand: list[PlayingCard] = []
 		self.players = players
+		self.verbose = verbose
 
 	def deal_card(self, recieving_player: Player, visible = True):
 		card = self.deck.remove_card()
@@ -39,15 +40,23 @@ class Dealer(Player):
 		for player in self.players:
 			player.print_hand()
 			if player.get_hand_value(True) == 21:
-				print(f"{player.name} gets a blackjack!")
+				if self.verbose:
+					print(f"{player.name} gets a blackjack!")
+					player.end_game_state = EndGameState.Win
 				return True
 		return False
+	
+	def set_player_endgame_state(self, state: EndGameState):
+		for player in self.players:
+			if not player.end_game_state == EndGameState.Bust:
+				player.end_game_state = state
 	
 	def final_dealing_period_for_dealer(self):
 		dealer_hand_value = self.get_hand_value()
 		if type(dealer_hand_value) == tuple: # Has an ace
 			if(dealer_hand_value[0] < 17 and dealer_hand_value[1] < 17):
-				print("------------------ Dealer Hits -------------------")
+				if self.verbose:
+					print("------------------ Dealer Hits -------------------")
 				self.deal_card(self)
 				self.print_hand(True)
 				self.final_dealing_period_for_dealer()
@@ -57,40 +66,43 @@ class Dealer(Player):
 
 		else: # No ace
 			if(dealer_hand_value < 17):
-				print("------------------ Dealer Hits -------------------")
+				if self.verbose:
+					print("------------------ Dealer Hits -------------------")
 				self.deal_card(self)
 				self.print_hand(True)
 				self.final_dealing_period_for_dealer()
 				return
 
 		if dealer_hand_value > 21:
-			print("----------------- Dealer Busts -------------------")
+			if self.verbose:
+				print("----------------- Dealer Busts -------------------")
+			self.set_player_endgame_state(EndGameState.Win)
 		else:
 			for player in self.players:
 				end_output = ""
 				if dealer_hand_value > player.get_hand_value(True):
+					self.set_player_endgame_state(EndGameState.DealerWin)
 					end_output += f"Dealer Beats {player.name}"
 					padding_count = 48 - len(end_output)
 				elif dealer_hand_value == player.get_hand_value(True):
+					self.set_player_endgame_state(EndGameState.Push)
 					end_output += f"{player.name} pushes"
 					padding_count = 48 - len(end_output)
 				else:
+					self.set_player_endgame_state(EndGameState.Win)
 					end_output += f"{player.name} beats the dealer"
 					padding_count = 48 - len(end_output)
 				
 				player.print_hand()
-				print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
-
-
-		
-
+				if self.verbose:
+					print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
 
 	def playing_period(self):
 		"""
 		Handle each player's turn until they stand or bust.
 		"""
 		for player in self.players:
-			while not player.busted:
+			while not player.end_game_state == EndGameState.Bust:
 				action = player.get_possible_actions()
 
 				if action == Actions.Hit.value:
@@ -104,7 +116,8 @@ class Dealer(Player):
 					break
 
 				else:
-					print(f"Unknown action: {action}")
+					if self.verbose:
+						print(f"Unknown action: {action}")
 					break
 
 
@@ -116,25 +129,34 @@ class Dealer(Player):
 		player.print_hand()
 
 		if player.get_hand_value() > 21:
-			print("Bust!")
-			player.busted = True
+			end_output = f"{player.name} Busts"
+			padding_count = 48 - len(end_output)
+			if self.verbose:
+				print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
+			player.end_game_state = EndGameState.Bust
 
 
 	def cleanup_period(self):
 		pass
 	
 	def play_round(self):
-		print("-"*50)
-		print("-"*19, "New Round", "-"*20)
-		print("-"*50)
+		# Reset players end game state
+		for player in self.players:
+			player.end_game_state = EndGameState.Null
+		if self.verbose:
+			print("-"*50)
+			print("-"*19, "New Round", "-"*20)
+			print("-"*50)
+
 		if not self.dealing_period(): # All Players won
-			print("-"*50)
+			if self.verbose:
+				print("-"*50)
 			self.playing_period()
-			if all(player.busted for player in self.players):
-				print("Dealer wins")
+			if all(player.end_game_state == EndGameState.Bust for player in self.players):
 				return
-			print("-------- The Dealer flips his hidden card --------")
-			print("-"*50)
+			if self.verbose:
+				print("-------- The Dealer flips his hidden card --------")
+				print("-"*50)
 			for card in self.hand:
 				card.visible = True
 			self.print_hand(True)

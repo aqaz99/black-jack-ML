@@ -1,14 +1,15 @@
 from game.cards import PlayingCard
-from game.enums import Actions
+from game.enums import Actions, EndGameState
 
 
 class Player:
-	def __init__(self, name, starting_capital):
+	def __init__(self, name, starting_capital, verbose=True):
 		self.name = name
 		self.cash = starting_capital
 		self.hand: list[PlayingCard] = []
-		self.busted = False
 		self.took_first_action = False
+		self.verbose = verbose
+		self.end_game_state = EndGameState.Null
 	
 	def get_hand_value(self, get_max_value = False):
 		"""Return the value of the hand. 
@@ -34,6 +35,8 @@ class Player:
 	
 	def print_hand(self, dealer=False):
 		"""Prints hand and current score representation."""
+		if not self.verbose:
+			return
 		title = "Dealer" if dealer else "Player"
 		print(f"{title} ({self.name}):")
 
@@ -50,7 +53,6 @@ class Player:
 		else:
 			value = self.get_hand_value()
 			print(f"  ➝ Total: {value}")
-
 		
 		print("")
 
@@ -76,16 +78,15 @@ class Player:
 			Actions.Stand,
 			
 		]
-
 		if not self.took_first_action: # Can't double after first deal
 			available_actions.append(Actions.Double)
 
 		if self.hand[0].value == self.hand[1].value: # Check split
 			available_actions.append(Actions.Split)
 
-
-		for action in available_actions:
-			print(f"{action.value}) {action.name}")
+		if self.verbose:
+			for action in available_actions:
+				print(f"{action.value}) {action.name}")
 
 		while True:
 			try:
@@ -96,5 +97,6 @@ class Player:
 				break
 			except ValueError:
 				pass
-		print("-"*50)	
+		if self.verbose:
+			print("-"*50)	
 		return choice
