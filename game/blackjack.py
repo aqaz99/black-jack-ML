@@ -106,32 +106,64 @@ class Dealer(Player):
 		Handle each player's turn until they stand or bust.
 		"""
 		for player in self.players:
-			while not player.end_game_state == EndGameState.Bust:
-				action = player.get_possible_actions()
+			self.play_hand(player)
 
-				if action == Action.Hit:
-					self.apply_card_action(player)
-					hand_value = player.get_hand_value()
-					if isinstance(hand_value, tuple):
-						has_21 = 21 in hand_value
-					else:
-						has_21 = hand_value == 21
+	def play_hand(self, player: Player):
+		while not player.end_game_state == EndGameState.Bust:
+			action = player.get_possible_actions()
 
-					if has_21:
-						break
-
-				elif action == Action.Double:
-					self.apply_card_action(player)
-					break  
-
-				elif action == Action.Stand:
-					break
-
+			if action == Action.Hit:
+				self.apply_card_action(player)
+				hand_value = player.get_hand_value()
+				if isinstance(hand_value, tuple):
+					has_21 = 21 in hand_value
 				else:
-					if self.verbose:
-						print(f"Unknown action: {action}")
+					has_21 = hand_value == 21
+
+				if has_21:
 					break
 
+			elif action == Action.Double:
+				self.apply_card_action(player)
+				break  
+
+			elif action == Action.Stand:
+				break
+
+			elif action == Action.Split:
+				self.apply_split_action(player)
+				break
+
+			else:
+				if self.verbose:
+					print(f"Unknown action: {action}")
+				break
+
+	def apply_split_action(self, player: Player):
+		if len(player.hand) == 2 and player.hand[0].value == player.hand[1].value:
+			# Create two new hands from the split
+			first_card = player.hand[0]
+			second_card = player.hand[1]
+			player.split_hands = []  # Clear previous splits if any
+			# Each hand starts with one of the split pair
+			hand1 = [first_card]
+			hand2 = [second_card]
+			# Deal a second card to each (using regular game rules)
+			self.deal_card(player, visible=True)
+			hand1.append(player.hand.pop()) # Remove from player 'hand'
+			self.deal_card(player, visible=True)
+			hand2.append(player.hand.pop())
+			player.split_hands = [hand1, hand2]
+
+			# Hand 1
+			player.hand = hand1
+			player.print_hand()
+			self.play_hand(player)
+
+			# Hand 2
+			player.hand = hand2
+			player.print_hand()
+			self.play_hand(player)
 
 	def apply_card_action(self, player: Player):
 		"""Helper to deal, print, and handle busting logic."""
@@ -192,7 +224,7 @@ class Dealer(Player):
 			self.final_dealing_period_for_dealer()
 
 
-# james = Player("James", 500)
-# seth = Dealer("Seth", [james])
+james = Player("James", 500)
+seth = Dealer("Seth", [james])
 
-# seth.play_round()
+seth.play_round()

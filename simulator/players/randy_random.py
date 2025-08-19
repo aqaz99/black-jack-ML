@@ -20,8 +20,8 @@ class RandyRandom(Player):
 		if not self.took_first_action: # Can't double after first deal
 			available_actions.append(Action.Double)
 
-		# if self.hand[0].value == self.hand[1].value: # Check split
-		# 	available_actions.append(Action.Split)
+		if self.hand[0].value == self.hand[1].value: # Check split
+			available_actions.append(Action.Split)
 
 		choice = random.choice(available_actions)
 		if self.verbose:

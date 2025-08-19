@@ -11,6 +11,7 @@ class Player:
 		self.verbose = verbose
 		self.end_game_state = EndGameState.Null
 		self.dealer_visible_card = PlayingCard
+		self.split_hands = []
 		self.action_map = {
 			"Hit": 0, 
 			"Stand": 0, 
@@ -18,6 +19,9 @@ class Player:
 			"Split":0
 		}
 	
+	def add_split_hand(self, first_card, second_card):
+		self.split_hands.append([first_card, second_card])
+		
 	def get_hand_value(self, get_max_value = False):
 		"""Return the value of the hand. 
 		If an Ace makes 2 possibilities return a tuple, otherwise a single int."""
@@ -91,8 +95,8 @@ class Player:
 		if not self.took_first_action: # Can't double after first deal
 			available_actions.append(Action.Double)
 
-		# if self.hand[0].value == self.hand[1].value: # Check split
-		# 	available_actions.append(Action.Split)
+		if self.hand[0].value == self.hand[1].value: # Check split
+			available_actions.append(Action.Split)
 
 		if self.verbose:
 			for action in available_actions:

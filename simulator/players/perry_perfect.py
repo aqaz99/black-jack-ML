@@ -24,8 +24,8 @@ class PerryPerfect(Player):
 		if not self.took_first_action: # Can't double after first deal
 			available_actions.append(Action.Double)
 
-		# if self.hand[0].value == self.hand[1].value: # Check split
-		# 	available_actions.append(Action.Split)
+		if self.hand[0].value == self.hand[1].value: # Check split
+			available_actions.append(Action.Split)
 
 
 		# Always take higher value from dealer card, if it's an ace we take the 11. 

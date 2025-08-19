@@ -1,11 +1,10 @@
 from game.blackjack import Dealer
 from game.cards import PlayingCard
 from game.enums import Suit
-from game.player import Player
 from simulator.players.perry_perfect import PerryPerfect
 from simulator.players.randy_random import RandyRandom
 
-verbose = False
+verbose = True
 game_count = 1000000
 
 # Run command: python3 -m simulator.simulate
