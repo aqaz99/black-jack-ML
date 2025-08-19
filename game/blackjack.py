@@ -1,4 +1,4 @@
-from game.cards import Deck
+from game.cards import Deck, PlayingCard
 from game.player import Player
 from game.enums import Action, EndGameState
 
@@ -32,6 +32,9 @@ class Dealer(Player):
 			for player in self.players:
 				self.deal_card(player)
 			self.deal_card(self, dealer_card_visible)
+			if dealer_card_visible: # Add first card to all players visiblity
+				for player in self.players:
+					player.dealer_visible_card = self.hand[0]
 			dealer_card_visible = False
 		
 		self.print_hand(True)
@@ -162,6 +165,7 @@ class Dealer(Player):
 			player.end_game_state = EndGameState.Null
 			player.hand.clear()
 			player.took_first_action = False
+			player.dealer_visible_card = PlayingCard
 			player.action_map = {
 				"Hit": 0, 
 				"Stand": 0, 

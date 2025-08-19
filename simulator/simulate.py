@@ -5,8 +5,26 @@ from game.player import Player
 from simulator.players.perry_perfect import PerryPerfect
 from simulator.players.randy_random import RandyRandom
 
+verbose = False
+game_count = 100000
+game_tracker = {
+	"hands": {	
+		"Null": 0, 
+		"Win": 0, 
+		"Push": 0, 
+		"Bust": 0, 
+		"DealerWin":0
+	},
+	"actions": {
+		"Hit": 0, 
+		"Stand": 0, 
+		"Double": 0, 
+		"Split":0
+	}
+}
+
 # Run command: python3 -m simulator.simulate
-def simulate_perry():
+def verify_perry():
 	hard_perfect_string = "HHHHHHHHHHHHHHHHHHHHHDDDDHHHHHDDDDDDDDHHDDDDDDDDDDHHSSSHHHHHSSSSSHHHHHSSSSSHHHHHSSSSSHHHHHSSSSSHHHHHSSSSSSSSSS"
 	soft_perfect_string = "HHHDDHHHHHHHHDDHHHHHHHDDDHHHHHHHDDDHHHHHHDDDDHHHHHDDDDDSSHHHSSSSSSSSSS"
 	pairs_perfect_string = "PPPPPPHHHHPPPPPPHHHHHHHPPHHHHHDDDDDDDDHHPPPPPHHHHHPPPPPPHHHHPPPPPPPPPPPPPPPSPPSSSSSSSSSSSSPPPPPPPPPP"
@@ -48,35 +66,33 @@ def simulate_perry():
 	print("Hard Test:", hard_text == hard_perfect_string)
 	print("Soft Test:", ace_text == soft_perfect_string)
 	print("Pair Test:", pair_text == pairs_perfect_string)
+	
+	print_game_tracker_results()
+
+
+def simulate_perry():
+	perry = PerryPerfect("perry", 1000, verbose)
+	seth = Dealer("Seth", [perry], verbose)
+	for i in range(game_count): 
+		seth.play_round()
+		game_tracker["hands"][perry.end_game_state.name] += 1
+		for key, val in perry.action_map.items():
+			game_tracker["actions"][key] += val
+	
+	print_game_tracker_results()
 
 def simulate_randy():
-	verbose = False
-	game_count = 100000
 	robbie = RandyRandom("Robbie", 1000, verbose)
 	seth = Dealer("Seth", [robbie], verbose)
-
-	game_tracker = {
-		"hands": {	
-			"Null": 0, 
-			"Win": 0, 
-			"Push": 0, 
-			"Bust": 0, 
-			"DealerWin":0
-		},
-		"actions": {
-			"Hit": 0, 
-			"Stand": 0, 
-			"Double": 0, 
-			"Split":0
-		}
-	}
 	for i in range(game_count): 
 		seth.play_round()
 		game_tracker["hands"][robbie.end_game_state.name] += 1
 		for key, val in robbie.action_map.items():
 			game_tracker["actions"][key] += val
+	
+	print_game_tracker_results()
 
-
+def print_game_tracker_results():
 	hand_items = [(k, v) for k, v in game_tracker["hands"].items() if k != "Null"]
 	action_items = list(game_tracker["actions"].items())
 
@@ -105,7 +121,23 @@ def simulate_randy():
 		else:
 			action_print = ""
 		print(f"| {hand_print:<16} | {action_print:<14} |")
-	print("-" * 31)	
+	print("-" * 31)
 
 
 simulate_perry()
+game_tracker = {
+	"hands": {	
+		"Null": 0, 
+		"Win": 0, 
+		"Push": 0, 
+		"Bust": 0, 
+		"DealerWin":0
+	},
+	"actions": {
+		"Hit": 0, 
+		"Stand": 0, 
+		"Double": 0, 
+		"Split":0
+	}
+}
+simulate_randy()

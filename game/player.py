@@ -10,6 +10,7 @@ class Player:
 		self.took_first_action = False
 		self.verbose = verbose
 		self.end_game_state = EndGameState.Null
+		self.dealer_visible_card = PlayingCard
 		self.action_map = {
 			"Hit": 0, 
 			"Stand": 0, 
