@@ -7,10 +7,47 @@ from simulator.players.randy_random import RandyRandom
 
 # Run command: python3 -m simulator.simulate
 def simulate_perry():
-    perry = PerryPerfect("Perry", 1000)
-    perry.hand = [PlayingCard("Four", (4, 4), suit=Suit.Hearts), PlayingCard("Five", (5, 5), suit=Suit.Hearts)]
-    # seth = Dealer("Seth", [perry])
-    print(perry.get_perfect_play(6))
+	hard_perfect_string = "HHHHHHHHHHHHHHHHHHHHHDDDDHHHHHDDDDDDDDHHDDDDDDDDDDHHSSSHHHHHSSSSSHHHHHSSSSSHHHHHSSSSSHHHHHSSSSSHHHHHSSSSSSSSSS"
+	soft_perfect_string = "HHHDDHHHHHHHHDDHHHHHHHDDDHHHHHHHDDDHHHHHHDDDDHHHHHDDDDDSSHHHSSSSSSSSSS"
+	pairs_perfect_string = "PPPPPPHHHHPPPPPPHHHHHHHPPHHHHHDDDDDDDDHHPPPPPHHHHHPPPPPPHHHHPPPPPPPPPPPPPPPSPPSSSSSSSSSSSSPPPPPPPPPP"
+
+	perry = PerryPerfect("Perry", 1000)
+
+	hard_text = ""
+	# Test hard hand
+	for i in range(5, 16):
+		perry.hand = [PlayingCard("", (2, 2), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
+		for j in range(2, 12):
+			play = perry.get_perfect_play(j).name[0]
+			hard_text += play
+
+	ace_text = ""
+	# Test Aces / soft hand
+	for i in range(2, 9):
+		perry.hand = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
+		for j in range(2, 12):
+			play = perry.get_perfect_play(j).name[0]
+			ace_text += play
+	
+	pair_text = ""
+	# Test pairs
+	for i in range(2, 12):
+		if i <= 10:
+			perry.hand = [PlayingCard("", (i, i), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
+		else:
+			perry.hand = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("Ace", (1, 11), suit=Suit.Hearts)]
+
+		for j in range(2, 12):
+			play = perry.get_perfect_play(j)
+			if play.name == "Split":
+				play = "P"
+			else:
+				play = play.name[0]
+			pair_text += play
+		
+	print("Hard Test:", hard_text == hard_perfect_string)
+	print("Soft Test:", ace_text == soft_perfect_string)
+	print("Pair Test:", pair_text == pairs_perfect_string)
 
 def simulate_randy():
 	verbose = False
