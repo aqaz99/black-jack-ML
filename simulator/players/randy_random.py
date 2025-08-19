@@ -5,7 +5,7 @@ from game.player import Player
 import random
 
 
-class RandyRanom(Player):
+class RandyRandom(Player):
 	def __init__(self, name, starting_capital, verbose=True):
 		super().__init__(name, starting_capital=starting_capital, verbose=verbose)
 		self.deck = Deck()

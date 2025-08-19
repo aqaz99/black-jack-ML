@@ -1,4 +1,4 @@
-from game.cards import Deck, PlayingCard
+from game.cards import Deck
 from game.player import Player
 from game.enums import Action, EndGameState
 
