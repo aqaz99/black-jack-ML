@@ -6,22 +6,7 @@ from simulator.players.perry_perfect import PerryPerfect
 from simulator.players.randy_random import RandyRandom
 
 verbose = False
-game_count = 100000
-game_tracker = {
-	"hands": {	
-		"Null": 0, 
-		"Win": 0, 
-		"Push": 0, 
-		"Bust": 0, 
-		"DealerWin":0
-	},
-	"actions": {
-		"Hit": 0, 
-		"Stand": 0, 
-		"Double": 0, 
-		"Split":0
-	}
-}
+game_count = 1000000
 
 # Run command: python3 -m simulator.simulate
 def verify_perry():
@@ -71,6 +56,22 @@ def verify_perry():
 
 
 def simulate_perry():
+	game_tracker = {
+		"hands": {	
+			"Null": 0, 
+			"Win": 0, 
+			"Push": 0, 
+			"Bust": 0, 
+			"DealerWin":0
+		},
+		"actions": {
+			"Hit": 0, 
+			"Stand": 0, 
+			"Double": 0, 
+			"Split":0
+		}
+	}
+	print("------ Simulating Perry -------")
 	perry = PerryPerfect("perry", 1000, verbose)
 	seth = Dealer("Seth", [perry], verbose)
 	for i in range(game_count): 
@@ -79,9 +80,25 @@ def simulate_perry():
 		for key, val in perry.action_map.items():
 			game_tracker["actions"][key] += val
 	
-	print_game_tracker_results()
+	print_game_tracker_results(game_tracker)
 
 def simulate_randy():
+	game_tracker = {
+		"hands": {	
+			"Null": 0, 
+			"Win": 0, 
+			"Push": 0, 
+			"Bust": 0, 
+			"DealerWin":0
+		},
+		"actions": {
+			"Hit": 0, 
+			"Stand": 0, 
+			"Double": 0, 
+			"Split":0
+		}
+	}
+	print("------ Simulating Randy -------")
 	robbie = RandyRandom("Robbie", 1000, verbose)
 	seth = Dealer("Seth", [robbie], verbose)
 	for i in range(game_count): 
@@ -90,9 +107,9 @@ def simulate_randy():
 		for key, val in robbie.action_map.items():
 			game_tracker["actions"][key] += val
 	
-	print_game_tracker_results()
+	print_game_tracker_results(game_tracker)
 
-def print_game_tracker_results():
+def print_game_tracker_results(game_tracker):
 	hand_items = [(k, v) for k, v in game_tracker["hands"].items() if k != "Null"]
 	action_items = list(game_tracker["actions"].items())
 
@@ -103,10 +120,6 @@ def print_game_tracker_results():
 	hand_items += [("", "")] * (max_len - len(hand_items))
 	action_items += [("", "")] * (max_len - len(action_items))
 
-	end_output = f"Total Games: {game_count}"
-	padding_count = 30 - len(end_output)
-	print("-" * 31)
-	print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
 	print("-" * 31)
 
 	for (hand_key, hand_val), (action_key, action_val) in zip(hand_items, action_items):
@@ -123,21 +136,10 @@ def print_game_tracker_results():
 		print(f"| {hand_print:<16} | {action_print:<14} |")
 	print("-" * 31)
 
-
+def print_total_games():
+	print("-  Total Games:", game_count)
+	print("-" * 31)
 simulate_perry()
-game_tracker = {
-	"hands": {	
-		"Null": 0, 
-		"Win": 0, 
-		"Push": 0, 
-		"Bust": 0, 
-		"DealerWin":0
-	},
-	"actions": {
-		"Hit": 0, 
-		"Stand": 0, 
-		"Double": 0, 
-		"Split":0
-	}
-}
 simulate_randy()
+print_total_games()
+# Still need to add split functionality
