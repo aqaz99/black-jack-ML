@@ -1,101 +1,33 @@
-from game.cards import PlayingCard
-from game.enums import Action, EndGameState
+from game.cards import  PlayingCard
+from game.enums import Action
+from game.hand import Hand
 
 
 class Player:
 	def __init__(self, name, starting_capital, verbose=True):
 		self.name = name
 		self.cash = starting_capital
-		self.hand: list[PlayingCard] = []
-		self.took_first_action = False
 		self.verbose = verbose
-		self.end_game_state = EndGameState.Null
+		self.hands = [Hand(verbose)]
 		self.dealer_visible_card = PlayingCard
-		self.split_hands = []
 		self.action_map = {
 			"Hit": 0, 
 			"Stand": 0, 
 			"Double": 0, 
 			"Split":0
 		}
-	
-	def add_split_hand(self, first_card, second_card):
-		self.split_hands.append([first_card, second_card])
-		
-	def get_hand_value(self, get_max_value = False):
-		"""Return the value of the hand. 
-		If an Ace makes 2 possibilities return a tuple, otherwise a single int."""
-		total_low = 0
-		total_high = 0 
 
-		for card in self.hand:
-			total_low += card.value[0]
-			total_high += card.value[1]
 
-		# If the "high" value busts, downgrade it to low
-		if total_high > 21:
-			total_high = total_low
-		
-		# If player has 21, return it
-		if max(total_low, total_high) == 21:
-			return 21
-
-		# If equal, just return one int
-		if total_low == total_high:
-			return total_low
-		else:
-			if get_max_value:
-				return max(total_low, total_high)
-			return (total_low, total_high)
-	
-	def print_hand(self, dealer=False):
-		"""Prints hand and current score representation."""
-		if not self.verbose:
-			return
-		title = "Dealer" if dealer else "Player"
-		print(f"{title} ({self.name}):")
-
-		for card in self.hand:
-			if card.visible:
-				print(f"  {card}")
-			else:
-				print("  (Hidden Card)")
-
-		# If hidden card exists, only reveal partial values
-		if any(not card.visible for card in self.hand):
-			val = self.get_partial_value()
-			print(f"  ➝ Total: {val}")
-		else:
-			value = self.get_hand_value()
-			print(f"  ➝ Total: {value}")
-		
-		print("")
-
-	def get_partial_value(self):
-		"""Return value of only visible cards (used for dealer’s hidden card)."""
-		total_low = 0
-		total_high = 0
-		for card in self.hand:
-			if card.visible:
-				total_low += card.value[0]
-				total_high += card.value[1]
-
-		if total_high > 21:
-			total_high = total_low
-
-		# If identical, just return int
-		return total_low if total_low == total_high else (total_low, total_high)
-
-	def get_possible_actions(self) -> Action:
+	def get_possible_hand_actions(self, hand: Hand) -> Action:
 		choice = Action.Hit
 		available_actions = [
 			Action.Hit,
 			Action.Stand,
 		]
-		if not self.took_first_action: # Can't double after first deal
+		if not hand.took_first_action: # Can't double after first deal
 			available_actions.append(Action.Double)
 
-		if self.hand[0].value == self.hand[1].value: # Check split
+		if hand.cards[0].value == hand.cards[1].value: # Check split
 			available_actions.append(Action.Split)
 
 		if self.verbose:
@@ -116,3 +48,4 @@ class Player:
 		
 		self.action_map[action.name] += 1
 		return action
+	

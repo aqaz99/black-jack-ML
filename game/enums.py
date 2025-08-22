@@ -12,7 +12,7 @@ class Action(Enum):
 	Double = 3
 	Split = 4
 
-class EndGameState(Enum):
+class EndGameHandState(Enum):
 	Null = 0
 	Win = 1
 	Push = 2

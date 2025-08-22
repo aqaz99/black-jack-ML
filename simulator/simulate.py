@@ -141,4 +141,3 @@ def print_total_games():
 simulate_perry()
 simulate_randy()
 print_total_games()
-# Still need to add split functionality

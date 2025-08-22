@@ -1,6 +1,6 @@
 import random
 
-from game.enums import Suit
+from game.enums import EndGameHandState, Suit
 
 number_card_names = {
 	1: "Ace",
@@ -27,8 +27,6 @@ class PlayingCard:
 	def __str__(self):
 		return f"{self.name} of {self.suit.name}"
 	
-
-
 class Deck:
 	def __init__(self):
 		self.cards: list[PlayingCard] = []
