@@ -1,5 +1,7 @@
 # black-jack-ML
 
+Using https://wizardofodds.com/games/blackjack/ for referencing probabilities
+
 ## ------ Simulating Perry -------
 
 | Win: 38867 (38.9%) | Hit: 57140 (43.4%) |
