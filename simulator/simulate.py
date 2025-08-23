@@ -20,7 +20,7 @@ def verify_perry():
 	for i in range(5, 16):
 		perry.hands[0] = [PlayingCard("", (2, 2), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
 		for j in range(2, 12):
-			play = perry.get_perfect_play(j).name[0]
+			play = perry.get_perfect_play(j, perry.hands[0]).name[0]
 			hard_text += play
 
 	ace_text = ""
@@ -28,7 +28,7 @@ def verify_perry():
 	for i in range(2, 9):
 		perry.hands[0] = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
 		for j in range(2, 12):
-			play = perry.get_perfect_play(j).name[0]
+			play = perry.get_perfect_play(j, perry.hands[0]).name[0]
 			ace_text += play
 	
 	pair_text = ""
@@ -40,7 +40,7 @@ def verify_perry():
 			perry.hands[0] = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("Ace", (1, 11), suit=Suit.Hearts)]
 
 		for j in range(2, 12):
-			play = perry.get_perfect_play(j)
+			play = perry.get_perfect_play(j, perry.hands[0])
 			if play.name == "Split":
 				play = "P"
 			else:
@@ -128,11 +128,22 @@ def print_game_tracker_results(game_tracker):
 	# Get actual game count
 	actual_game_count = game_tracker["hands"]["Win"] + game_tracker["hands"]["Push"] + game_tracker["hands"]["Bust"] + game_tracker["hands"]["DealerWin"]
 	for (hand_key, hand_val), (action_key, action_val) in zip(hand_items, action_items):
+		# Process left side / Hand results
 		if hand_key:
 			hand_perc = f"{100*hand_val/actual_game_count:.1f}%" if actual_game_count else "0%"
-			hand_print = f"{hand_key}: {hand_val} ({hand_perc})"
+			if hand_key == "Bust":
+				hand_print = f"{hand_key}: {hand_val}"
+			elif hand_key == "DealerWin":
+				hand_val += game_tracker["hands"]["Bust"]
+				hand_perc = f"{100*hand_val/actual_game_count:.1f}%" if actual_game_count else "0%"
+				hand_print = f"{hand_key}: {hand_val} ({hand_perc})"
+			else:
+				hand_print = f"{hand_key}: {hand_val} ({hand_perc})"
+				
 		else:
 			hand_print = ""
+		
+		# Right side / Actions taken
 		if action_key:
 			action_perc = f"{100*action_val/action_total:.1f}%" if action_total else "0%"
 			action_print = f"{action_key}: {action_val} ({action_perc})"

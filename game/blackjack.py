@@ -55,7 +55,8 @@ class Dealer(Player):
 	def final_dealing_period_for_dealer(self):
 		dealer_hand_value = self.hands[0].get_hand_value()
 		if type(dealer_hand_value) == tuple: # Has an ace
-			if(dealer_hand_value[0] < 17 and dealer_hand_value[1] < 17):
+			# Should hit on soft 17
+			if dealer_hand_value == (6, 17) or (dealer_hand_value[0] < 17 and dealer_hand_value[1] < 17):
 				self.deal_card(self.hands[0])
 				if self.verbose:
 					print("------------------ Dealer Hits -------------------")
@@ -125,6 +126,8 @@ class Dealer(Player):
 				elif action == Action.Split:
 					# Delete the hand that existed (use hand id) then add two new hands
 					card1, card2 = hand.cards[0], hand.cards[1]
+
+					player.hands.remove(hand)
 					
 					new_hand1 = Hand()
 					new_hand1.cards.append(card1)
@@ -133,7 +136,9 @@ class Dealer(Player):
 					new_hand2.cards.append(card2)
 
 
-					player.hands = [new_hand1, new_hand2]
+					player.hands.append(new_hand1)
+					player.hands.append(new_hand2)
+
 					self.play_individual_player_hands(player)
 
 
