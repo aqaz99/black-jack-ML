@@ -9,6 +9,7 @@ class Hand:
 		self.end_game_state = EndGameHandState.Null
 		self.took_first_action = False
 		self.verbose = verbose
+		self.hand_id = 0 # Used if we ever have splits
 	
 	def print_hand(self, user_name: str, dealer=False):
 		"""Prints hand and current score representation."""

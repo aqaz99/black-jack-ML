@@ -5,6 +5,8 @@ from game.enums import Action, EndGameHandState
 
 # What if player gets blackjack at same time as deal
 # What if split is a blackjack
+# Run command: python3 -m game.blackjack
+
 
 # Dealer / GameManager 
 # Runs game loop, deals cards, etc
@@ -40,12 +42,13 @@ class Dealer(Player):
 					player.dealer_visible_card = self.hands[0].cards[0]
 			dealer_card_visible = False
 		
-		self.hands[0].print_hand(self.name,True)
 		for player in self.players:
 			if player.hands[0].get_hand_value(True) == 21:
 				if self.verbose:
+					self.hands[0].print_hand(self.name,True)
 					player.hands[0].print_hand(player.name)
 					print(f"{player.name} gets a blackjack!")
+					print("123123")
 					player.hands[0].end_game_state = EndGameHandState.Win
 				return True
 		return False
@@ -75,11 +78,15 @@ class Dealer(Player):
 		if dealer_hand_value > 21:
 			if self.verbose:
 				print("----------------- Dealer Busts -------------------")
+			for player in self.players:
+				for hand in player.hands:
+					if hand.end_game_state == EndGameHandState.Null:
+						hand.end_game_state = EndGameHandState.Win
 		else:
 			for player in self.players:
 				for hand in player.hands:
 					end_output = ""	
-					if dealer_hand_value > hand.get_hand_value(True):
+					if dealer_hand_value > hand.get_hand_value(True) or hand.end_game_state == EndGameHandState.Bust:
 						end_output += f"Dealer Beats {player.name}"
 						padding_count = 48 - len(end_output)
 						hand.end_game_state = EndGameHandState.DealerWin
@@ -93,7 +100,7 @@ class Dealer(Player):
 						hand.end_game_state = EndGameHandState.Win
 
 					
-					hand.print_hand(self.name)
+					hand.print_hand(player.name)
 					if self.verbose:
 						print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
 
@@ -104,8 +111,15 @@ class Dealer(Player):
 
 		for hand in player.hands: # While each hand isn't done we continue
 			if not hand.hand_stand and hand.end_game_state == EndGameHandState.Null:
+				# If it was a split hand, less than two cards, need to deal more
 				if self.verbose:
-					hand.print_hand(player.name)
+					self.hands[0].print_hand(self.name, True)
+					if len(hand.cards) < 2:
+						self.deal_card(hand)
+						hand.print_hand(player.name)
+					
+					else:
+						hand.print_hand(player.name)
 					print("-"*50)
 				
 				action = player.get_possible_hand_actions(hand)
@@ -113,75 +127,33 @@ class Dealer(Player):
 					self.apply_card_action(player, hand=hand)
 					hand_value = hand.get_hand_value()
 					if (isinstance(hand_value, tuple) and 21 in hand_value) or hand_value == 21:
-						break
-					# If bust, also break
+						continue
+					# If bust, also continue
 					if (isinstance(hand_value, tuple) and min(hand_value) > 21) or (not isinstance(hand_value, tuple) and hand_value > 21):
-						break
+						hand.end_game_state = EndGameHandState.Bust
+						continue
+					if hand_value < 21:
+						self.play_individual_player_hands(player)
 				elif action == Action.Double:
 					self.apply_card_action(player, hand=hand)
-					break
 				elif action == Action.Stand:
 					hand.hand_stand = True
-					break
 				elif action == Action.Split:
-					pass
-		
-		# while hands_to_play:
-		# 	hand = hands_to_play.pop(0)
-		# 	hand_obj = Hand()
-		# 	for c in hand:
-		# 		hand_obj.append(c)
-		# 	player.hand.clear()
-		# 	player.hand.extend(hand_obj)
+					# Delete the hand that existed (use hand id) then add two new hands
+					card1, card2 = hand.cards[0], hand.cards[1]
+					
+					new_hand1 = Hand()
+					new_hand1.cards.append(card1)
 
-		# 	while True:
-		# 		if len(hands_to_play) > 0:
-		# 			print("------------------ Split Hand --------------------")
-		# 		if self.verbose:
-		# 			player.print_hand(self.name)
-		# 			print("-"*50)
+					new_hand2 = Hand()
+					new_hand2.cards.append(card2)
 
 
-				# action = player.get_possible_hand_actions()
-				# if action == Action.Hit:
-				# 	self.apply_card_action(player)
-				# 	hand_value = player.get_hand_value()
-				# 	if (isinstance(hand_value, tuple) and 21 in hand_value) or hand_value == 21:
-				# 		break
-				# 	# If bust, also break
-				# 	if (isinstance(hand_value, tuple) and min(hand_value) > 21) or (not isinstance(hand_value, tuple) and hand_value > 21):
-				# 		break
-				# elif action == Action.Double:
-				# 	self.apply_card_action(player)
-				# 	break
-				# elif action == Action.Stand:
-				# 	break
-				# elif action == Action.Split:
-		# 			# Take both cards out, split into two new hands
-		# 			card1, card2 = player.hand[0], player.hand[1]
+					player.hands = [new_hand1, new_hand2]
+					self.play_individual_player_hands(player)
+			else:
+				print("Done!")
 
-		# 			# First split hand: card1 + 1 new card
-		# 			self.deal_card(player)
-		# 			new_hand1 = Hand()
-		# 			new_hand1.extend([card1, player.hand.pop()])
-
-		# 			# Second split hand: card2 + 1 new card
-		# 			self.deal_card(player)
-		# 			new_hand2 = Hand()
-		# 			new_hand2.extend([card2, player.hand.pop()])
-
-
-		# 			# Add both to the queue for further play
-		# 			hands_to_play.append(new_hand1)
-		# 			hands_to_play.append(new_hand2)
-		# 			break
-		# 		else:
-		# 			break
-			
-		# 	# Optionally, keep track of outcomes here (win, bust, etc.)
-		# 	results.append(player.end_game_state)
-		# # Optionally: player.hand = hands_to_play (final state for later use)
-		# return results
 
 	def playing_period(self):
 		for player in self.players:
@@ -204,7 +176,7 @@ class Dealer(Player):
 			end_output = f"{player.name} Busts"
 			padding_count = 48 - len(end_output)
 			if self.verbose:
-				hand.print_hand(self.name)
+				hand.print_hand(player.name)
 				print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
 			hand.end_game_state = EndGameHandState.Bust
 
@@ -231,12 +203,6 @@ class Dealer(Player):
 
 		if not self.dealing_period(): # All Players won
 			self.playing_period()
-			if all(
-				hand.end_game_state == EndGameHandState.Bust
-				for player in self.players
-				for hand in player.hands
-			):
-				return
 			if self.verbose:
 				print("-------- The Dealer flips his hidden card --------")
 				print("-"*50)
@@ -245,6 +211,9 @@ class Dealer(Player):
 					card.visible = True
 			self.hands[0].print_hand(self.name, True)
 			self.final_dealing_period_for_dealer()
+
+		for hand in player.hands:
+			print("Hand:", hand.end_game_state)
 
 
 james = Player("James", 500)
