@@ -76,8 +76,6 @@ class Dealer(Player):
 				return
 
 		if dealer_hand_value > 21:
-			if self.verbose:
-				print("----------------- Dealer Busts -------------------")
 			for player in self.players:
 				for hand in player.hands:
 					if hand.end_game_state == EndGameHandState.Null:
@@ -85,24 +83,12 @@ class Dealer(Player):
 		else:
 			for player in self.players:
 				for hand in player.hands:
-					end_output = ""	
-					if dealer_hand_value > hand.get_hand_value(True) or hand.end_game_state == EndGameHandState.Bust:
-						end_output += f"Dealer Beats {player.name}"
-						padding_count = 48 - len(end_output)
+					if dealer_hand_value > hand.get_hand_value(True) and hand.end_game_state != EndGameHandState.Bust:
 						hand.end_game_state = EndGameHandState.DealerWin
 					elif dealer_hand_value == hand.get_hand_value(True):
-						end_output += f"{player.name} pushes"
-						padding_count = 48 - len(end_output)
 						hand.end_game_state = EndGameHandState.Push
 					else:
-						end_output += f"{player.name} beats the dealer"
-						padding_count = 48 - len(end_output)
 						hand.end_game_state = EndGameHandState.Win
-
-					
-					hand.print_hand(player.name)
-					if self.verbose:
-						print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
 
 
 	def play_individual_player_hands(self, player: Player):
@@ -163,7 +149,7 @@ class Dealer(Player):
 		"""Helper to deal, print, and handle busting logic."""
 		hand.took_first_action = True
 		self.deal_card(hand)
-		self.hands[0].print_hand(self.name, True)
+		# self.hands[0].print_hand(self.name, True)
 
 		hand_value = hand.get_hand_value()
 		if isinstance(hand_value, tuple):
@@ -173,17 +159,29 @@ class Dealer(Player):
 			value = hand_value
 
 		if value > 21:
-			end_output = f"{player.name} Busts"
-			padding_count = 48 - len(end_output)
-			if self.verbose:
-				hand.print_hand(player.name)
-				print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
 			hand.end_game_state = EndGameHandState.Bust
 
 
 	def cleanup_period(self):
 		pass
 	
+	def print_all_hand_results(self):
+		print("-"*50)
+		print("-"*19, "Round Over", "-"*19)
+		for player in self.players:
+			for index, hand in enumerate(player.hands):
+				print("-"*50)
+				self.hands[0].print_hand(self.name, True, True)
+				end_output = ""
+				if hand.end_game_state == EndGameHandState.DealerWin:
+					end_output = f"{index}) Dealer beats {player.name}"
+				else:
+					end_output = f"{index}) {player.name} {'Pushes' if hand.end_game_state == EndGameHandState.Push else hand.end_game_state.name+'s'}"
+				padding_count = 48 - len(end_output)
+				if self.verbose:
+					hand.print_hand(player.name)
+					print(f"{'-'*(padding_count//2)} {end_output} {'-'*(padding_count//2)}")
+
 	def play_round(self):
 		# Reset players end game state
 		self.hands = [Hand()]
@@ -203,17 +201,24 @@ class Dealer(Player):
 
 		if not self.dealing_period(): # All Players won
 			self.playing_period()
-			if self.verbose:
-				print("-------- The Dealer flips his hidden card --------")
-				print("-"*50)
-			for card in self.hands[0].cards:
-				if isinstance(card, PlayingCard):
-					card.visible = True
-			self.hands[0].print_hand(self.name, True)
-			self.final_dealing_period_for_dealer()
+			all_busted = not any(
+				hand.end_game_state != EndGameHandState.Bust
+				for player in self.players
+				for hand in player.hands
+			)
+			if not all_busted:
+				if self.verbose:
+					print("-------- The Dealer flips his hidden card --------")
+					print("-"*50)
+				for card in self.hands[0].cards:
+					if isinstance(card, PlayingCard):
+						card.visible = True
+				if self.verbose:
+					self.hands[0].print_hand(self.name, True)
+				self.final_dealing_period_for_dealer()
 
-		for hand in player.hands:
-			print("Hand:", hand.end_game_state)
+		self.print_all_hand_results()
+
 
 
 james = Player("James", 500)

@@ -11,7 +11,7 @@ class Hand:
 		self.verbose = verbose
 		self.hand_id = 0 # Used if we ever have splits
 	
-	def print_hand(self, user_name: str, dealer=False):
+	def print_hand(self, user_name: str, dealer=False, get_max_value=False):
 		"""Prints hand and current score representation."""
 		if not self.verbose:
 			return
