@@ -48,8 +48,7 @@ class Dealer(Player):
 					self.hands[0].print_hand(self.name,True)
 					player.hands[0].print_hand(player.name)
 					print(f"{player.name} gets a blackjack!")
-					print("123123")
-					player.hands[0].end_game_state = EndGameHandState.Win
+				player.hands[0].end_game_state = EndGameHandState.Win
 				return True
 		return False
 	
@@ -57,10 +56,10 @@ class Dealer(Player):
 		dealer_hand_value = self.hands[0].get_hand_value()
 		if type(dealer_hand_value) == tuple: # Has an ace
 			if(dealer_hand_value[0] < 17 and dealer_hand_value[1] < 17):
+				self.deal_card(self.hands[0])
 				if self.verbose:
 					print("------------------ Dealer Hits -------------------")
-				self.deal_card(self.hands[0])
-				self.hands[0].print_hand(self.name, True)
+					self.hands[0].print_hand(self.name, True)
 				self.final_dealing_period_for_dealer()
 				return
 			
@@ -68,10 +67,10 @@ class Dealer(Player):
 
 		else: # No ace
 			if(dealer_hand_value < 17):
+				self.deal_card(self.hands[0])
 				if self.verbose:
 					print("------------------ Dealer Hits -------------------")
-				self.deal_card(self.hands[0])
-				self.hands[0].print_hand(self.name, True)
+					self.hands[0].print_hand(self.name, True)
 				self.final_dealing_period_for_dealer()
 				return
 
@@ -100,18 +99,17 @@ class Dealer(Player):
 				# If it was a split hand, less than two cards, need to deal more
 				if self.verbose:
 					self.hands[0].print_hand(self.name, True)
-					if len(hand.cards) < 2:
-						self.deal_card(hand)
-						hand.print_hand(player.name)
-					
-					else:
-						hand.print_hand(player.name)
+
+				if len(hand.cards) < 2:
+					self.deal_card(hand)
+				if self.verbose:
+					hand.print_hand(player.name)
 					print("-"*50)
 				
 				action = player.get_possible_hand_actions(hand)
 				if action == Action.Hit:
 					self.apply_card_action(player, hand=hand)
-					hand_value = hand.get_hand_value()
+					hand_value = hand.get_hand_value(True) # Get Max value if user has ace
 					if (isinstance(hand_value, tuple) and 21 in hand_value) or hand_value == 21:
 						continue
 					# If bust, also continue
@@ -137,8 +135,6 @@ class Dealer(Player):
 
 					player.hands = [new_hand1, new_hand2]
 					self.play_individual_player_hands(player)
-			else:
-				print("Done!")
 
 
 	def playing_period(self):
@@ -166,12 +162,14 @@ class Dealer(Player):
 		pass
 	
 	def print_all_hand_results(self):
-		print("-"*50)
-		print("-"*19, "Round Over", "-"*19)
+		if self.verbose:
+			print("-"*50)
+			print("-"*19, "Round Over", "-"*19)
 		for player in self.players:
 			for index, hand in enumerate(player.hands):
-				print("-"*50)
-				self.hands[0].print_hand(self.name, True, True)
+				if self.verbose:
+					print("-"*50)
+					self.hands[0].print_hand(self.name, True, True)
 				end_output = ""
 				if hand.end_game_state == EndGameHandState.DealerWin:
 					end_output = f"{index}) Dealer beats {player.name}"
@@ -221,7 +219,7 @@ class Dealer(Player):
 
 
 
-james = Player("James", 500)
-seth = Dealer("Seth", [james])
+# james = Player("James", 500)
+# seth = Dealer("Seth", [james])
 
-seth.play_round()
+# seth.play_round()

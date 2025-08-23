@@ -2,6 +2,7 @@ from game import player
 from game.blackjack import Dealer
 from game.cards import Deck, PlayingCard
 from game.enums import Action, Suit
+from game.hand import Hand
 from game.player import Player
 
 
@@ -15,22 +16,24 @@ class PerryPerfect(Player):
 		self.pairs_map = {}
 		self.init_maps()
 
-	def get_possible_actions(self) -> Action:
+	def get_possible_hand_actions(self, hand: Hand) -> Action:
 		available_actions = [
 			Action.Hit,
 			Action.Stand,
 		]
 
-		if not self.took_first_action: # Can't double after first deal
+		if not hand.took_first_action: # Can't double after first deal
 			available_actions.append(Action.Double)
 
-		if self.hand[0].value == self.hand[1].value: # Check split
+		if self.verbose:
+			hand.print_hand(self.name)
+		if hand.cards[0].value == hand.cards[1].value: # Check split
 			available_actions.append(Action.Split)
 
 
 		# Always take higher value from dealer card, if it's an ace we take the 11. 
 		# We only do this because of how it is setup below with our maps, we treat ace as 11
-		choice = self.get_perfect_play(self.dealer_visible_card.value[1])
+		choice = self.get_perfect_play(self.dealer_visible_card.value[1], hand)
 		if self.verbose:
 			print(f"{self.name} {choice.name}'s")
 		self.action_chosen = choice
@@ -210,11 +213,11 @@ class PerryPerfect(Player):
 
 
 
-	def get_perfect_play(self, dealer_upcard: PlayingCard) -> Action:
-		hand_val = self.get_hand_value()
+	def get_perfect_play(self, dealer_upcard: PlayingCard, hand: Hand) -> Action:
+		hand_val = hand.get_hand_value()
 		if isinstance(hand_val, tuple):
 			return self.soft_map[(hand_val, dealer_upcard)]
-		elif not self.took_first_action and self.hand[0].value == self.hand[1].value:
+		elif not hand.took_first_action and hand.cards[0].value == hand.cards[1].value:
 			return self.pairs_map[(hand_val, dealer_upcard)]
 		else:
 			return self.hard_map[(hand_val, dealer_upcard)]

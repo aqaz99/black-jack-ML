@@ -4,8 +4,8 @@ from game.enums import Suit
 from simulator.players.perry_perfect import PerryPerfect
 from simulator.players.randy_random import RandyRandom
 
-verbose = True
-game_count = 1000000
+verbose = False
+initial_game_count = 100000
 
 # Run command: python3 -m simulator.simulate
 def verify_perry():
@@ -18,7 +18,7 @@ def verify_perry():
 	hard_text = ""
 	# Test hard hand
 	for i in range(5, 16):
-		perry.hand = [PlayingCard("", (2, 2), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
+		perry.hands[0] = [PlayingCard("", (2, 2), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
 		for j in range(2, 12):
 			play = perry.get_perfect_play(j).name[0]
 			hard_text += play
@@ -26,7 +26,7 @@ def verify_perry():
 	ace_text = ""
 	# Test Aces / soft hand
 	for i in range(2, 9):
-		perry.hand = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
+		perry.hands[0] = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
 		for j in range(2, 12):
 			play = perry.get_perfect_play(j).name[0]
 			ace_text += play
@@ -35,9 +35,9 @@ def verify_perry():
 	# Test pairs
 	for i in range(2, 12):
 		if i <= 10:
-			perry.hand = [PlayingCard("", (i, i), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
+			perry.hands[0] = [PlayingCard("", (i, i), suit=Suit.Hearts), PlayingCard("", (i, i), suit=Suit.Hearts)]
 		else:
-			perry.hand = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("Ace", (1, 11), suit=Suit.Hearts)]
+			perry.hands[0] = [PlayingCard("Ace", (1, 11), suit=Suit.Hearts), PlayingCard("Ace", (1, 11), suit=Suit.Hearts)]
 
 		for j in range(2, 12):
 			play = perry.get_perfect_play(j)
@@ -70,15 +70,18 @@ def simulate_perry():
 			"Split":0
 		}
 	}
+	print("-" * 31)
 	print("------ Simulating Perry -------")
+	print("-" * 31)
 	perry = PerryPerfect("perry", 1000, verbose)
 	seth = Dealer("Seth", [perry], verbose)
-	for i in range(game_count): 
+	for i in range(initial_game_count): 
 		seth.play_round()
-		game_tracker["hands"][perry.end_game_state.name] += 1
-		for key, val in perry.action_map.items():
-			game_tracker["actions"][key] += val
-	
+		for hand in perry.hands:
+			game_tracker["hands"][hand.end_game_state.name] += 1
+			for key, val in perry.action_map.items():
+				game_tracker["actions"][key] += val
+		
 	print_game_tracker_results(game_tracker)
 
 def simulate_randy():
@@ -97,14 +100,17 @@ def simulate_randy():
 			"Split":0
 		}
 	}
+	print("-" * 31)
 	print("------ Simulating Randy -------")
+	print("-" * 31)
 	robbie = RandyRandom("Robbie", 1000, verbose)
 	seth = Dealer("Seth", [robbie], verbose)
-	for i in range(game_count): 
+	for i in range(initial_game_count): 
 		seth.play_round()
-		game_tracker["hands"][robbie.end_game_state.name] += 1
-		for key, val in robbie.action_map.items():
-			game_tracker["actions"][key] += val
+		for hand in robbie.hands:
+			game_tracker["hands"][hand.end_game_state.name] += 1
+			for key, val in robbie.action_map.items():
+				game_tracker["actions"][key] += val
 	
 	print_game_tracker_results(game_tracker)
 
@@ -119,11 +125,11 @@ def print_game_tracker_results(game_tracker):
 	hand_items += [("", "")] * (max_len - len(hand_items))
 	action_items += [("", "")] * (max_len - len(action_items))
 
-	print("-" * 31)
-
+	# Get actual game count
+	actual_game_count = game_tracker["hands"]["Win"] + game_tracker["hands"]["Push"] + game_tracker["hands"]["Bust"] + game_tracker["hands"]["DealerWin"]
 	for (hand_key, hand_val), (action_key, action_val) in zip(hand_items, action_items):
 		if hand_key:
-			hand_perc = f"{100*hand_val/game_count:.1f}%" if game_count else "0%"
+			hand_perc = f"{100*hand_val/actual_game_count:.1f}%" if actual_game_count else "0%"
 			hand_print = f"{hand_key}: {hand_val} ({hand_perc})"
 		else:
 			hand_print = ""
@@ -134,10 +140,13 @@ def print_game_tracker_results(game_tracker):
 			action_print = ""
 		print(f"| {hand_print:<16} | {action_print:<14} |")
 	print("-" * 31)
+	print_total_games(actual_game_count)
 
-def print_total_games():
-	print("-  Total Games:", game_count)
+def print_total_games(actual_game_count):
+	print("-  Total Hands:", actual_game_count)
 	print("-" * 31)
+
+print("\n\n\n\n\n\n\n")
 simulate_perry()
+print("\n")
 simulate_randy()
-print_total_games()
